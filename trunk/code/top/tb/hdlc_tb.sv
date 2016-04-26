@@ -1,10 +1,10 @@
 typedef struct {
-	     bit [8:0]  SFLAG;   // Begin flag
-	rand bit [8:0]  ADDRESS; // 8 or more bits
-	rand bit [8:0]  CONTROL; // What is this? 8 or 16bits
-  	rand byte [10:0] DATA;    // Random junk n * 8bits
-	     bit [16:0] CRC;      // CRC 16 bit
-	     bit  [8:0] EFLAG;    // End flag
+             bit [8:0]  SFLAG;   // Begin flag
+        rand bit [8:0]  ADDRESS; // 8 or more bits
+        rand bit [8:0]  CONTROL; // What is this? 8 or 16bits
+  rand byte DATA[];    // Random junk n * 8bits
+             bit [16:0] CRC;      // CRC 16 bit
+             bit  [8:0] EFLAG;    // End flag
 } packet_t;
 
 class HDLC_packet;
@@ -12,6 +12,7 @@ class HDLC_packet;
   constraint c {
     packet.ADDRESS inside {[0:8]};
     packet.CONTROL inside {[0:8]};
+    packet.DATA.size; // constrain length of data array
   }
 
   function new (); // {
@@ -23,7 +24,7 @@ class HDLC_packet;
 
   // function to compute crc16
   function bit [15:0] crc16 (bit [7:0]  pkt [],
-                             bit [31:0] len     = 0, 
+                             bit [31:0] len     = 0,
                              bit [31:0] offset  = 0); // {
     bit [15:0] crc = 16'hffff;
     bit [7:0]  local_reg;
@@ -293,5 +294,19 @@ class HDLC_packet;
     crc = reflect (crc, 16);
     crc16 = (crc);
   endfunction : crc16 // }
+  
+  function bit [31:0] reflect (bit [31:0] v, int b); // {
+    int        i;
+    bit [31:0] t = v;
+    for (i = 0; i < b; i++)
+    begin // {
+        if (t & 1)                                                               
+          v |= 1 << ((b-1)-i);
+        else
+          v &= ~(1 << ((b-1)-i));
+        t   >>=1;
+    end // }
+    reflect = v;
+  endfunction : reflect // }
 
 endclass: HDLC_packet
