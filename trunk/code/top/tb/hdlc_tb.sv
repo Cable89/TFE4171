@@ -1,11 +1,7 @@
-'include "hdlc_packet.sv"
-'include "../core/hdlc.vhd"
+timeunit 10ns;
 
-HDLC_packet test_message[NMESSAGES];
-
-module hdlc_tb();
-
-parameter NMESSAGES = 10;
+`include "hdlc_packet.sv"
+//'include "tb_wrapper.v"
 
 module hdlc_tb(output
     txclk,
@@ -27,4 +23,31 @@ module hdlc_tb(output
     tag0_o,
     tag1_o
     );
+
+parameter NMESSAGES=10;
+
+//initial begin
+//  clk_i=0;
+//  txclk=0;
+//  rxclk=0;
+//end
+
+HDLC_packet test_message[NMESSAGES];
+
+initial
+message_gen: begin
+  clk_i=0;
+  txclk=0;
+  rxclk=0;
+  for (int i = 0; i < NMESSAGES; i++) begin
+    test_message[i] = new;
+    test_message[i].getbits(rx);
+  end
+end:message_gen
+  
+always #1  clk_i =~clk_i;
+always #25 txclk =~txclk;
+always #25 rxclk =~txclk;
+
 endmodule : hdlc_tb
+
