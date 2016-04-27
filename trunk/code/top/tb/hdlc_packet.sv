@@ -22,6 +22,19 @@ class HDLC_packet;
     packet.CRC = crc16(packet.DATA, 80);
   endfunction : new // }
 
+// TODO: Modify
+  task getbits(ref bit data_o, input int delay=1);
+    bit [17:0] header;
+    bit [14:0] tail;
+    header = {message.ID,message.RTR,message.rsvd,message.DLC};
+    tail = message.CRC;
+    $display("tail=%0b",tail);
+    //step through message and output each bit (from left to right)
+    foreach(header[i]) #delay data_o = header[i];
+    foreach(message.data[i,j]) #delay data_o = message.data[i][j];
+    foreach(tail[i]) #delay data_o = tail[i];
+  endtask
+
   // function to compute crc16
   function bit [15:0] crc16 (bit [7:0]  pkt [],
                              bit [31:0] len     = 0,
