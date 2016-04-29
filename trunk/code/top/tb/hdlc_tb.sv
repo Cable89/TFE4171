@@ -1,7 +1,5 @@
-meunit 10ns;
-
 `include "hdlc_packet.sv"
-//'include "tb_wrapper.v"
+`include "tb_wrapper.v"
 
 module hdlc_tb(output
     txclk,
@@ -23,16 +21,18 @@ module hdlc_tb(output
     tag0_o,
     tag1_o
     );
+timeunit 10ns;
 
 parameter NMESSAGES=10;
 
 bit rx_thingy;
-HDLC_packet test_message[NMESSAGES];
+HDLC_packet test_message[10];
 
 initial
 message_gen: begin
-  for (int i = 0; i < NMESSAGES; i++) begin
+  for (int i = 0; i < 10; i++) begin
     test_message[i] = new;
+    test_message[i].randomize();
     test_message[i].getbits(rx_thingy);
   end
 end:message_gen

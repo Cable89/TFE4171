@@ -1,5 +1,5 @@
 module tb_wrapper;
-	bind hdlc_tb
+	bind hdlc
 
 	hdlc_tb hdlc_tb_bind
 

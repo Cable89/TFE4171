@@ -1,42 +1,43 @@
 typedef struct {
-             bit [8:0]  SFLAG;   // Begin flag
-        rand bit [8:0]  ADDRESS; // 8 or more bits
-        rand bit [8:0]  CONTROL; // What is this? 8 or 16bits
-  rand byte DATA[];    // Random junk n * 8bits
-             bit [16:0] CRC;      // CRC 16 bit
-             bit  [8:0] EFLAG;    // End flag
+         bit [7:0]  sflag;      // Begin flag
+    rand bit [7:0]  address;    // 8 or more bits
+    rand bit [7:0]  control;    // What is this? 8 or 16bits
+    rand byte data[];           // Random junk n * 8bits
+         bit [15:0] crc;        // CRC 16 bit
+         bit  [7:0] eflag;      // End flag
 } packet_t;
 
 class HDLC_packet;
     rand packet_t packet;
-  constraint c {
-    packet.ADDRESS inside {[0:8]};
-    packet.CONTROL inside {[0:8]};
-    packet.DATA.size; // constrain length of data array
-  }
 
-  function new (); // {
-    packet.randomize();
-    packet.SFLAG = 8'b01111110;
-    packet.EFLAG = 8'b01111110;
-    packet.CRC = crc16(packet.DATA, 80);
-  endfunction : new // }
+    constraint c1 { packet.address inside {[0:8]}; }
+    constraint c2 { packet.control inside {[0:8]}; }
+        //packet.DATA.size; // constrain length of data array
+    
+    task clear_data;
+        packet.data.delete();
+    endtask
 
-// TODO: Modify
-  task getbits(ref bit data_o, input int delay=1);
-    bit [17:0] header;
-    bit [14:0] tail;
-    header = {message.ID,message.RTR,message.rsvd,message.DLC};
-    tail = message.CRC;
-    $display("tail=%0b",tail);
-    //step through message and output each bit (from left to right)
-    foreach(header[i]) #delay data_o = header[i];
-    foreach(message.data[i,j]) #delay data_o = message.data[i][j];
-    foreach(tail[i]) #delay data_o = tail[i];
-  endtask
+    function new ();
+        packet.sflag = 8'b01111110;
+        packet.eflag = 8'b01111110;
+        packet.crc = crc16(packet.data, $size(packet.data));
+    endfunction
+    
+    // Unpack the data, and serialize it
+    task getbits(ref bit data_o, input int delay=1);
+        bit [23:0] header;
+        bit [23:0] tail;
+        header = {packet.sflag, packet.address, packet.control};
+        tail = {packet.crc, packet.eflag};
+        //step through message and output each bit (from left to right)
+        foreach(header[i]) #delay data_o = header[i];
+        foreach(packet.data[i,j]) #delay data_o = packet.data[i][j];
+        foreach(tail[i]) #delay data_o = tail[i];
+    endtask
 
   // function to compute crc16
-  function bit [15:0] crc16 (bit [7:0]  pkt [],
+  function bit [15:0] crc16 (byte  pkt [],
                              bit [31:0] len     = 0,
                              bit [31:0] offset  = 0); // {
     bit [15:0] crc = 16'hffff;
