@@ -25,7 +25,7 @@ class HDLC_packet;
     endfunction
     
     // Unpack the data, and serialize it
-    task getbits(ref bit data_o, input int delay=1);
+    task getbits(ref bit data_o, input int delay=5);
         bit [23:0] header;
         bit [23:0] tail;
         header = {packet.sflag, packet.address, packet.control};

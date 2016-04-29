@@ -5,9 +5,9 @@ timeunit 10ns;
 
 module hdlc_tb();
 reg txclk = 0;
-reg rxclk = 0;
+reg rxclk = 1;
 wire tx;
-reg rx = 0;
+bit rx = 0;
 reg txen = 0;
 reg rxen = 0;
 reg rst_i = 1;
@@ -25,7 +25,7 @@ wire tag1_o;
 
 parameter NMESSAGES=10;
 
-bit rx_thingy;
+//bit rx_thingy;
 HDLC_packet test_message[10];
 //rx <= rx_thingy;
 
@@ -34,7 +34,7 @@ message_gen: begin
     for (int i = 0; i < 10; i++) begin
         test_message[i] = new;
         test_message[i].randomize();
-        test_message[i].getbits(rx_thingy);
+        test_message[i].getbits(rx);
     end
 end:message_gen
 
@@ -50,10 +50,16 @@ end:message_gen
   RxEN <= '1';
 */
 
- 
-//always #1  clk_i =~clk_i;
-//always #25 txclk =~txclk;
-//always #25 rxclk =~txclk;
+always begin
+    #1 clk_i =~clk_i;
+end
+
+always begin
+    #25 txclk =~txclk;
+        rxclk =~txclk;
+end
+
+
 hdlc_ent dut   (txclk,
                     rxclk,
                     tx,
