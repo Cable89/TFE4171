@@ -9,9 +9,6 @@ vmap hdlc
 vmap memlib
 
 
-# Test bench
-vlog -work work  ~/hdlc/trunk/code/top/tb/hdlc_tb.sv
-
 # Utility files
 vcom -work utility  ~/hdlc/trunk/code/tools_pkg.vhd
 
@@ -66,3 +63,7 @@ vcom -work work  ~/hdlc/trunk/code/top/core/TxSync.vhd
 vcom -work work  ~/hdlc/trunk/code/top/core/WB_IF.vhd
 
 vcom -work work  ~/hdlc/trunk/code/top/core/hdlc.vhd
+
+
+# Test bench
+vlog -work work  ~/hdlc/trunk/code/top/tb/hdlc_tb.sv

@@ -1,4 +1,4 @@
-program hdlc_props(input 
+module hdlc_props(input 
 	txclk,
 	rxclk,
 	tx,
@@ -152,9 +152,9 @@ program hdlc_props(input
 	//12. Byte aligned data (if data is not aligned to 8-bits error signal
 	//is reported to the backend interface)
 	
-	property alignmentCheck;
-		@(posedge txclk)
-	endproperty
+	//property alignmentCheck;
+	//	@(posedge txclk)
+	//endproperty
 
 	//13. Q.921, LAPD and LAPB compliant
 	
@@ -187,4 +187,4 @@ program hdlc_props(input
 	//22. The core will be made of two levels of hierchies, the basic
 	//functionality and the Optional interfaces and buffers
 	// --- N/A ---
-endprogram
+endmodule
