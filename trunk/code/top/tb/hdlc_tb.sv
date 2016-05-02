@@ -7,7 +7,7 @@ module hdlc_tb();
 reg txclk = 0;
 reg rxclk = 1;
 wire tx;
-bit rx = 0;
+bit rx = 1;
 reg txen = 0;
 reg rxen = 0;
 reg rst_i = 1;
@@ -31,11 +31,21 @@ HDLC_packet test_message[10];
 
 initial
 message_gen: begin
+    #100;
+    rst_i = 0;
+    rxen = 1;
+    txen = 1;
+    #50;
     for (int i = 0; i < 10; i++) begin
         test_message[i] = new;
         test_message[i].randomize();
+        test_message[i].randomize_foreach();
+        test_message[i].print();
         test_message[i].getbits(rx);
+        rx = 1;
+        #50;
     end
+    rx = 1;
 end:message_gen
 
 /*

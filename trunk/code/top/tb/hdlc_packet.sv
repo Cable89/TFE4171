@@ -2,7 +2,7 @@ typedef struct {
          bit [7:0]  sflag;      // Begin flag
     rand bit [7:0]  address;    // 8 or more bits
     rand bit [7:0]  control;    // What is this? 8 or 16bits
-    rand byte data[];           // Random junk n * 8bits
+    rand byte databytes[];           // Random junk n * 8bits
          bit [15:0] crc;        // CRC 16 bit
          bit  [7:0] eflag;      // End flag
 } packet_t;
@@ -12,28 +12,55 @@ class HDLC_packet;
 
     constraint c1 { packet.address inside {[0:8]}; }
     constraint c2 { packet.control inside {[0:8]}; }
-        //packet.DATA.size; // constrain length of data array
-    
+    constraint data_size { packet.databytes.size() inside {[1:100]}; }   
+ 
     task clear_data;
-        packet.data.delete();
+        packet.databytes.delete();
     endtask
 
     function new ();
         packet.sflag = 8'b01111110;
         packet.eflag = 8'b01111110;
-        packet.crc = crc16(packet.data, $size(packet.data));
+        packet.crc = crc16(packet.databytes, $size(packet.databytes));
     endfunction
+
+    task randomize_foreach;
+        foreach(packet.databytes[i])
+            std::randomize(packet.databytes[i]);
+    endtask
     
     // Unpack the data, and serialize it
     task getbits(ref bit data_o, input int delay=5);
         bit [23:0] header;
         bit [23:0] tail;
+        int ones = 0;
         header = {packet.sflag, packet.address, packet.control};
         tail = {packet.crc, packet.eflag};
         //step through message and output each bit (from left to right)
         foreach(header[i]) #delay data_o = header[i];
-        foreach(packet.data[i,j]) #delay data_o = packet.data[i][j];
+        foreach(packet.databytes[i,j]) begin
+            if(packet.databytes[i][j] == 1'b1) begin
+                ones++;
+                if(ones == 5) begin
+                    // Zero bit insertion
+                    #delay data_o = 1'b0;
+                    ones = 0;
+                end
+            end
+            #delay data_o = packet.databytes[i][j];
+        end
         foreach(tail[i]) #delay data_o = tail[i];
+    endtask
+
+    task print();
+        begin
+            $display("sflag: %0d", packet.sflag);
+            $display("address: %0d", packet.address);
+            $display("control: %0d", packet.control);
+            $display("data: %0d", packet.databytes);
+            $display("crc: %0d", packet.crc);
+            $display("eflag: %0d", packet.eflag);
+        end
     endtask
 
   // function to compute crc16
