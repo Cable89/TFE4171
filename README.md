@@ -2,6 +2,8 @@
 by
 Eivind Gamst and Øystein Smith
 
+The task given in the subject TFE4171 Digital Design 2 at NTNU is described in Project_description.pdf
+
 ###The files added in the term project are:
 * **/trunk/code/top/tb/hdlc_packet.sv**           - Test bench data class
 * **/trunk/code/top/tb/hdlc_tb.sv**               - Test bench
